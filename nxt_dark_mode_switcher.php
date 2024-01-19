@@ -1,16 +1,23 @@
 <?php
+
 /** 
  * Plugin Name: Dark Mode Switcher by nexTab
  * Description: Add a toggle button to your website that allows a visitor to switch between dark and light mode. Sets a cookie for the user if they changed their preference
+ * Version: 1.1
+ * Author: nexTab
+ * Author URI: https://nextab.de
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: nxt-dark-mode-switcher
  */
 
 function nxt_register_dark_mode_script() {
-	wp_enqueue_script('nxt_dark_mode_switcher', plugin_dir_url(__FILE__) . 'js/nxt_dark_mode_switcher.js', array('wp-blocks','wp-element','wp-i18n','wp-editor'), true, false);
+	wp_enqueue_script('nxt_dark_mode_switcher', plugin_dir_url(__FILE__) . 'js/nxt_dark_mode_switcher.js', array('wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor'), true, false);
 }
 add_action('enqueue_block_editor_assets', 'nxt_register_dark_mode_script');
 
 function nxt_register_frontend_scripts() {
-	wp_enqueue_style( 'nxt_dark_mode_switcher', plugin_dir_url(__FILE__) . 'css/nxt_dark_mode_switcher.css', '', '1.0', 'all');
+	wp_enqueue_style('nxt_dark_mode_switcher', plugin_dir_url(__FILE__) . 'css/nxt_dark_mode_switcher.css', '', '1.0', 'all');
 	wp_enqueue_script('nxt_dark_mode_switcher_frontend', plugin_dir_url(__FILE__) . 'js/nxt_dark_mode_switcher_frontend.js', '', '1.0', true);
 }
 add_action('wp_enqueue_scripts', 'nxt_register_frontend_scripts');
@@ -27,3 +34,60 @@ function register_nxt_dark_mode_switcher_block() {
 	]);
 }
 add_action('init', 'register_nxt_dark_mode_switcher_block');
+
+#region Traditional Menu Support
+// Add a meta box for the Dark Mode switcher
+function nxt_add_dark_mode_meta_box() {
+	add_meta_box('nxt-dark-mode-meta-box', 'Dark Mode Switcher', 'nxt_dark_mode_meta_box', 'nav-menus', 'side', 'default');
+}
+add_action('admin_init', 'nxt_add_dark_mode_meta_box');
+
+// Display the meta box content
+function nxt_dark_mode_meta_box() {
+?>
+	<div id="posttype-dark-mode-switcher" class="posttypediv">
+		<div id="tabs-panel-dark-mode-switcher" class="tabs-panel tabs-panel-active">
+			<ul id="dark-mode-switcher-checklist" class="categorychecklist form-no-clear">
+				<li>
+					<label class="menu-item-title">
+						<input type="checkbox" class="menu-item-checkbox" name="menu-item[-1][menu-item-object-id]" value="-1"> Dark Mode Switcher
+					</label>
+					<input type="hidden" class="menu-item-type" name="menu-item[-1][menu-item-type]" value="custom">
+					<input type="hidden" class="menu-item-title" name="menu-item[-1][menu-item-title]" value="Dark Mode Switcher">
+					<input type="hidden" class="menu-item-url" name="menu-item[-1][menu-item-url]" value="#">
+				</li>
+			</ul>
+		</div>
+		<p class="button-controls">
+			<span class="add-to-menu">
+				<button type="submit" class="button-secondary submit-add-to-menu right" value="Add to Menu" name="add-post-type-menu-item" id="submit-posttype-dark-mode-switcher">Add to Menu</button>
+				<span class="spinner"></span>
+			</span>
+		</p>
+	</div>
+<?php
+}
+
+// Handle adding the Dark Mode switcher to the menu
+function nxt_setup_custom_menu_item($menu_item) {
+	if ($menu_item->url && $menu_item->url == '#') {
+		// Check for Dark Mode switcher title
+		if ($menu_item->title == 'Dark Mode Switcher') {
+			$menu_item->type = 'custom';
+			$menu_item->object = 'dark_mode_switcher';
+			$menu_item->object_id = -1;
+		}
+	}
+	return $menu_item;
+}
+add_filter('wp_setup_nav_menu_item', 'nxt_setup_custom_menu_item');
+
+// Render the Dark Mode switcher in the menu
+function nxt_render_custom_menu_item($item_output, $item, $depth, $args) {
+	if ($item->object == 'dark_mode_switcher') {
+		$item_output = render_nxt_dark_mode_switcher([], '');
+	}
+	return $item_output;
+}
+add_filter('walker_nav_menu_start_el', 'nxt_render_custom_menu_item', 10, 4);
+#endregion Traditional Menu Support
