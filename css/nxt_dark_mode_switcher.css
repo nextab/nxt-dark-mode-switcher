@@ -25,7 +25,7 @@
   width: 1rem;
 }
 
-body.dark-mode .dark_mode_container svg {
+html.dark-mode .dark_mode_container svg {
   filter: var(--dms-white-mode-switcher-color-filter);
 }
 
@@ -59,4 +59,4 @@ input.dark_mode_switcher[type=checkbox]:checked {
 input.dark_mode_switcher[type=checkbox]:checked::before {
   left: 1rem;
   background: linear-gradient(var(--dms-black-button-gradient));
-}
+}/*# sourceMappingURL=nxt_dark_mode_switcher.css.map */

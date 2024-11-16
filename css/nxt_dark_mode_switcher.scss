@@ -23,7 +23,7 @@
 		width: 1rem;
 	}
 }
-body.dark-mode {
+html.dark-mode {
 	.dark_mode_container {
 		svg {
 			filter: var(--dms-white-mode-switcher-color-filter);
